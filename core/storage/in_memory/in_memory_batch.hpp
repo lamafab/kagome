@@ -6,39 +6,40 @@
 #ifndef KAGOME_IN_MEMORY_BATCH_HPP
 #define KAGOME_IN_MEMORY_BATCH_HPP
 
-#include "common/buffer.hpp"
-#include "storage/in_memory/in_memory_storage.hpp"
+#include <map>
+
+#include "storage/face/write_batch.hpp"
 
 namespace kagome::storage {
-  using kagome::common::Buffer;
 
+  template <typename Storage, typename K, typename V>
   class InMemoryBatch
-      : public kagome::storage::face::WriteBatch<Buffer,
-                                                 Buffer> {
+      : public kagome::storage::face::WriteBatch<K,
+                                                 V> {
    public:
-    explicit InMemoryBatch(InMemoryStorage &db) : db{db} {}
+    explicit InMemoryBatch(Storage &db) : db{db} {}
 
-    outcome::result<void> put(const Buffer &key,
-                              const Buffer &value) override {
-      entries[key.toHex()] = value;
+    outcome::result<void> put(const K &key,
+                              const V &value) override {
+      entries[key] = value;
       return outcome::success();
     }
 
-    outcome::result<void> put(const Buffer &key,
-                              Buffer &&value) override {
-      entries[key.toHex()] = std::move(value);
+    outcome::result<void> put(const K &key,
+                              V &&value) override {
+      entries[key] = std::move(value);
       return outcome::success();
     }
 
-    outcome::result<void> remove(const Buffer &key) override {
-      entries.erase(key.toHex());
+    outcome::result<void> remove(const K &key) override {
+      entries.erase(key);
       return outcome::success();
     }
 
     outcome::result<void> commit() override {
       for (auto &entry : entries) {
         OUTCOME_TRY(
-            db.put(Buffer::fromHex(entry.first).value(), entry.second));
+            db.put(entry.first, entry.second));
       }
       return outcome::success();
     }
@@ -48,8 +49,8 @@ namespace kagome::storage {
     }
 
    private:
-    std::map<std::string, Buffer> entries;
-    InMemoryStorage &db;
+    std::map<K, V> entries;
+    Storage &db;
   };
 }  // namespace kagome::storage
 

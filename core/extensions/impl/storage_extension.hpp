@@ -10,7 +10,7 @@
 
 #include "common/logger.hpp"
 #include "runtime/wasm_memory.hpp"
-#include "storage/trie/trie_db.hpp"
+#include "storage/runtime_overlay_storage/impl/overlay_trie_db_impl.hpp"
 
 namespace kagome::extensions {
   /**
@@ -18,8 +18,10 @@ namespace kagome::extensions {
    */
   class StorageExtension {
    public:
-    StorageExtension(std::shared_ptr<storage::trie::TrieDb> db,
-                     std::shared_ptr<runtime::WasmMemory> memory);
+    StorageExtension(
+        std::shared_ptr<storage::runtime_overlay_storage::OverlayTrieDb>
+            overlay,
+        std::shared_ptr<runtime::WasmMemory> memory);
 
     // -------------------------Data storage--------------------------
 
@@ -106,7 +108,7 @@ namespace kagome::extensions {
                                         runtime::SizeType offset,
                                         runtime::SizeType max_length) const;
 
-    std::shared_ptr<storage::trie::TrieDb> db_;
+    std::shared_ptr<storage::runtime_overlay_storage::OverlayTrieDb> overlay_;
     std::shared_ptr<runtime::WasmMemory> memory_;
     common::Logger logger_;
 

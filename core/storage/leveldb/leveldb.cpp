@@ -68,6 +68,14 @@ namespace kagome::storage {
     return get(key).has_value();
   }
 
+  bool LevelDB::empty() const {
+    auto it = db_->NewIterator(ro_);
+    it->SeekToFirst();
+    bool empty = not it->Valid();
+    delete it;
+    return empty;
+  }
+
   outcome::result<void> LevelDB::put(const Buffer &key, const Buffer &value) {
     auto status = db_->Put(wo_, make_slice(key), make_slice(value));
     if (status.ok()) {

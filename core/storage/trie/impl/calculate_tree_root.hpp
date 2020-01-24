@@ -21,16 +21,28 @@ namespace kagome::storage::trie {
    * Instantiate empty merkle trie, insert \param key_vals pairs and \return
    * Buffer containing merkle root of resulting trie
    */
-  static outcome::result<common::Buffer> calculateTrieRoot(
-      const std::vector<std::pair<common::Buffer, common::Buffer>> &key_vals) {
+  template <typename K, typename V, typename It>
+  static outcome::result<common::Buffer> calculateTrieRoot(const It &begin,
+                                                           const It &end) {
+    PolkadotCodec codec;
+    // empty root
+    if (begin == end) return common::Buffer{}.put(codec.hash256({0}));
+
+    // clang-format off
+    static_assert(
+        std::is_same_v<std::decay_t<decltype(*begin)>, std::pair<K, V>>);
+    // clang-format on
+
     auto trie_db = storage::trie::PolkadotTrieDb::createEmpty(
         std::make_shared<storage::trie::PolkadotTrieDbBackend>(
-            std::make_shared<storage::InMemoryStorage>(),
+            std::make_shared<storage::InMemoryStorage<K, V>>(),
             common::Buffer{},
             common::Buffer{0}));
 
-    for (const auto &[key, val] : key_vals) {
-      OUTCOME_TRY(trie_db->put(key, val));
+    It it = begin;
+    while (it != end) {
+      OUTCOME_TRY(trie_db->put(it->first, it->second));
+      it++;
     }
     return trie_db->getRootHash();
   }

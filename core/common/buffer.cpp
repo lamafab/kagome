@@ -4,6 +4,7 @@
  */
 
 #include "common/buffer.hpp"
+
 #include "buffer.hpp"
 #include "common/hexutil.hpp"
 
@@ -73,6 +74,7 @@ namespace kagome::common {
 
   Buffer::Buffer(std::vector<uint8_t> v) : data_(std::move(v)) {}
   Buffer::Buffer(gsl::span<const uint8_t> s) : data_(s.begin(), s.end()) {}
+  Buffer::Buffer(std::string_view s) : data_(s.begin(), s.end()) {}
 
   const std::vector<uint8_t> &Buffer::toVector() const {
     return data_;
@@ -99,6 +101,12 @@ namespace kagome::common {
   }
 
   Buffer::Buffer(size_t size, uint8_t byte) : data_(size, byte) {}
+
+  bool Buffer::operator<(const Buffer &other) const noexcept {
+    return size() < other.size()
+           or std::lexicographical_compare(
+               begin(), end(), other.begin(), other.end());
+  }
 
   bool Buffer::operator==(const std::vector<uint8_t> &b) const noexcept {
     return data_ == b;

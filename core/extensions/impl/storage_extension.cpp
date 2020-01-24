@@ -7,18 +7,21 @@
 
 #include <forward_list>
 
+#include "blockchain/changes_trie.hpp"
+#include "storage/in_memory/in_memory_storage.hpp"
+#include "storage/runtime_overlay_storage/impl/overlay_trie_db_impl.hpp"
 #include "storage/trie/impl/calculate_tree_root.hpp"
 
 using kagome::common::Buffer;
 
 namespace kagome::extensions {
   StorageExtension::StorageExtension(
-      std::shared_ptr<storage::trie::TrieDb> db,
+      std::shared_ptr<storage::runtime_overlay_storage::OverlayTrieDb> overlay,
       std::shared_ptr<runtime::WasmMemory> memory)
-      : db_(std::move(db)),
+      : overlay_(std::move(overlay)),
         memory_(std::move(memory)),
         logger_{common::createLogger(kDefaultLoggerTag)} {
-    BOOST_ASSERT_MSG(db_ != nullptr, "db is nullptr");
+    BOOST_ASSERT_MSG(overlay_ != nullptr, "overlay is nullptr");
     BOOST_ASSERT_MSG(memory_ != nullptr, "memory is nullptr");
   }
 
@@ -27,7 +30,7 @@ namespace kagome::extensions {
   void StorageExtension::ext_clear_prefix(runtime::WasmPointer prefix_data,
                                           runtime::SizeType prefix_length) {
     auto prefix = memory_->loadN(prefix_data, prefix_length);
-    auto res = db_->clearPrefix(prefix);
+    auto res = overlay_->clearPrefix(prefix);
     if (not res) {
       logger_->error("ext_clear_prefix failed: {}", res.error().message());
     }
@@ -36,7 +39,7 @@ namespace kagome::extensions {
   void StorageExtension::ext_clear_storage(runtime::WasmPointer key_data,
                                            runtime::SizeType key_length) {
     auto key = memory_->loadN(key_data, key_length);
-    auto del_result = db_->remove(key);
+    auto del_result = overlay_->remove(key);
     if (not del_result) {
       logger_->warn(
           "ext_clear_storage did not delete key {} from trie db with reason: "
@@ -49,7 +52,7 @@ namespace kagome::extensions {
   runtime::SizeType StorageExtension::ext_exists_storage(
       runtime::WasmPointer key_data, runtime::SizeType key_length) const {
     auto key = memory_->loadN(key_data, key_length);
-    return db_->contains(key) ? 1 : 0;
+    return overlay_->contains(key) ? 1 : 0;
   }
 
   runtime::WasmPointer StorageExtension::ext_get_allocated_storage(
@@ -57,7 +60,7 @@ namespace kagome::extensions {
       runtime::SizeType key_length,
       runtime::WasmPointer len_ptr) {
     auto key = memory_->loadN(key_data, key_length);
-    auto data = db_->get(key);
+    auto data = overlay_->get(key);
     const auto length = data.has_value() ? data.value().size()
                                          : runtime::WasmMemory::kMaxMemorySize;
     memory_->store32(len_ptr, length);
@@ -129,7 +132,7 @@ namespace kagome::extensions {
           key.toHex());
     }
 
-    auto put_result = db_->put(key, value);
+    auto put_result = overlay_->put(key, value);
     if (not put_result) {
       logger_->error(
           "ext_set_storage failed, due to fail in trie db with reason: {}",
@@ -174,13 +177,24 @@ namespace kagome::extensions {
       runtime::SizeType parent_hash_len,
       runtime::SizeType parent_num,
       runtime::WasmPointer result) {
-    // TODO (kamilsa): PRE-95 Implement ext_storage_changes_root, 03.04.2019.
-    logger_->error("Unimplemented, assume no changes");
+    auto parent_hash = memory_->loadN(parent_hash_data, parent_hash_len);
+    common::Hash256 hash;
+    std::copy_n(parent_hash.begin(), parent_hash.size(), hash.begin());
+    if(auto&& changes_trie_res = blockchain::ChangesTrie::create(
+            overlay_,
+            std::make_unique<storage::InMemoryStorage<Buffer, Buffer>>(),
+            hash); changes_trie_res.has_value()) {
+      if(auto&& root = changes_trie_res.value()->getRoot(); root.has_value()) {
+        memory_->storeBuffer(result, Buffer{root.value()});
+      }
+
+    }
     return 0;
   }
 
   void StorageExtension::ext_storage_root(runtime::WasmPointer result) const {
-    const auto &root = db_->getRootHash();
+    overlay_->commit();
+    const auto &root = overlay_->getRootHash();
     memory_->storeBuffer(result, root);
   }
 
@@ -188,7 +202,7 @@ namespace kagome::extensions {
       const common::Buffer &key,
       runtime::SizeType offset,
       runtime::SizeType max_length) const {
-    OUTCOME_TRY(data, db_->get(key));
+    OUTCOME_TRY(data, overlay_->get(key));
 
     const auto data_length =
         std::min<runtime::SizeType>(max_length, data.size() - offset);

@@ -26,3 +26,11 @@ addtest(block_storage_test
 target_link_libraries(block_storage_test
     block_storage
     )
+
+addtest(changes_trie_test
+    changes_trie_test.cpp
+    )
+target_link_libraries(changes_trie_test
+    changes_trie
+    blob
+    )

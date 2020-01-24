@@ -30,3 +30,10 @@ add_library(block_tree_error
 target_link_libraries(block_tree_error
     outcome
     )
+
+add_library(changes_trie INTERFACE)
+target_link_libraries(changes_trie INTERFACE
+    outcome
+    overlay_trie_db
+    polkadot_trie_db
+    )

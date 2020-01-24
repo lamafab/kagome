@@ -70,6 +70,7 @@ namespace kagome::storage::trie {
         const common::Buffer &key) const override;
 
     bool contains(const common::Buffer &key) const override;
+    bool empty() const override;
 
    private:
     outcome::result<NodePtr> insert(const NodePtr &parent,

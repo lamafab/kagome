@@ -224,7 +224,11 @@ namespace kagome::storage::trie {
            && (node.value()->value);
   }
 
-  outcome::result<void> PolkadotTrie::remove(const common::Buffer &key) {
+    bool PolkadotTrie::empty() const {
+        return root_ == nullptr;
+  }
+
+    outcome::result<void> PolkadotTrie::remove(const common::Buffer &key) {
     if (root_) {
       auto key_nibbles = PolkadotCodec::keyToNibbles(key);
       // delete node will fetch nodes that it needs from the storage (the nodes

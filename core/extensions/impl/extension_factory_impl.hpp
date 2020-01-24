@@ -7,20 +7,22 @@
 #define KAGOME_CORE_EXTENSIONS_IMPL_EXTENSION_FACTORY_IMPL_HPP
 
 #include "extensions/extension_factory.hpp"
-#include "storage/trie/trie_db.hpp"
+#include "storage/runtime_overlay_storage/impl/overlay_trie_db_impl.hpp"
 
 namespace kagome::extensions {
 
   class ExtensionFactoryImpl : public ExtensionFactory {
    public:
     ~ExtensionFactoryImpl() override = default;
-    explicit ExtensionFactoryImpl(std::shared_ptr<storage::trie::TrieDb> db);
+    explicit ExtensionFactoryImpl(
+        std::shared_ptr<storage::runtime_overlay_storage::OverlayTrieDb>
+            overlay);
 
     std::shared_ptr<Extension> createExtension(
         std::shared_ptr<runtime::WasmMemory> memory) const override;
 
    private:
-    std::shared_ptr<storage::trie::TrieDb> db_;
+    std::shared_ptr<storage::runtime_overlay_storage::OverlayTrieDb> overlay_;
   };
 
 }  // namespace kagome::extensions

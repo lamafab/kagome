@@ -47,7 +47,7 @@ TEST_F(VRFProviderTest, SignAndVerifySuccess) {
   auto out = out_opt.value();
 
   // then
-  ASSERT_TRUE(out.value < threshold);
+  ASSERT_TRUE(out.raw_output < threshold);
   ASSERT_TRUE(vrf_provider_->verify(msg_, out, keypair1_.public_key));
 }
 
@@ -67,7 +67,7 @@ TEST_F(VRFProviderTest, VerifyFailed) {
   auto out = out_opt.value();
 
   // then
-  ASSERT_TRUE(out.value < threshold);
+  ASSERT_TRUE(out.raw_output < threshold);
   ASSERT_FALSE(vrf_provider_->verify(msg_, out, keypair2_.public_key));
 }
 

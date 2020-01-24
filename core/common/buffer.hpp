@@ -42,6 +42,7 @@ namespace kagome::common {
      */
     explicit Buffer(std::vector<uint8_t> v);
     explicit Buffer(gsl::span<const uint8_t> s);
+    explicit Buffer(std::string_view s);
 
     Buffer(const uint8_t *begin, const uint8_t *end);
 
@@ -72,6 +73,11 @@ namespace kagome::common {
      * @brief Lexicographical comparison of two buffers
      */
     bool operator==(const Buffer &b) const noexcept;
+
+    /**
+     * @brief Lexicographical comparison of two buffers
+     */
+    bool operator<(const Buffer &other) const noexcept;
 
     /**
      * @brief Lexicographical comparison of buffer and vector of bytes

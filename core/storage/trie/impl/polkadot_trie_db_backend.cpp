@@ -47,6 +47,10 @@ namespace kagome::storage::trie {
     return storage_->contains(prefixKey(key));
   }
 
+  bool PolkadotTrieDbBackend::empty() const {
+    return storage_->empty();
+  }
+
   outcome::result<void> PolkadotTrieDbBackend::put(const Buffer &key,
                                                    const Buffer &value) {
     return storage_->put(prefixKey(key), value);

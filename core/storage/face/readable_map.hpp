@@ -33,6 +33,11 @@ namespace kagome::storage::face {
      * @return true if key has value, false otherwise.
      */
     virtual bool contains(const K &key) const = 0;
+
+    /**
+     * @brief returns whether the trie is empty
+     */
+    virtual bool empty() const = 0;
   };
 
 }  // namespace kagome::storage::face
