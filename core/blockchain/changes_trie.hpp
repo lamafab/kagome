@@ -44,11 +44,12 @@ namespace kagome::blockchain {
         // the end of operation AND are not in storage at the beginning of
         // operation
 
-        ExtrinsicIndex idx{.key = key, .number = parent_number + 1};
-
-        OUTCOME_TRY(extrs, scale::encode(value.changes_extrinsics));
-        OUTCOME_TRY(
-            trie.content_storage_->put(it->key(), common::Buffer{extrs}));
+        ExtrinsicIndex idx{.number = parent_number + 1, .key = key};
+        OUTCOME_TRY(idx_enc, scale::encode(idx));
+        OUTCOME_TRY(extrinsics_enc, scale::encode(value.changes_extrinsics));
+        OUTCOME_TRY(trie.content_storage_->put(
+            common::Buffer{std::move(idx_enc)},
+            common::Buffer{std::move(extrinsics_enc)}));
       }
       return std::make_unique<ChangesTrie>(std::move(trie));
     }
@@ -77,6 +78,34 @@ namespace kagome::blockchain {
         storage::face::PersistentMap<common::Buffer, common::Buffer>>
         content_storage_;
   };
+
+  /**
+   * @brief override operator<< for all streams except std::ostream
+   * @tparam Stream stream type
+   * @param s stream reference
+   * @param buffer value to encode
+   * @return reference to stream
+   */
+  template <class Stream,
+            typename = std::enable_if_t<Stream::is_encoder_stream>>
+  Stream &operator<<(Stream &s, const ChangesTrie::ExtrinsicIndex &idx) {
+    return s << static_cast<uint8_t>(1) << idx.number << idx.key;
+  }
+
+  /**
+   * @brief decodes buffer object from stream
+   * @tparam Stream input stream type
+   * @param s stream reference
+   * @param buffer value to decode
+   * @return reference to stream
+   */
+  template <class Stream,
+            typename = std::enable_if_t<Stream::is_decoder_stream>>
+  Stream &operator>>(Stream &s, ChangesTrie::ExtrinsicIndex &buffer) {
+    uint8_t type{};
+    s >> type >> buffer.number >> buffer.key;
+    return s;
+  }
 
 }  // namespace kagome::blockchain
 

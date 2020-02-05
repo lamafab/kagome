@@ -69,7 +69,7 @@ TEST(ChangesTrieTest, Create) {
   auto storage = std::make_unique<InMemoryStorage<Buffer, Buffer>>();
   EXPECT_OUTCOME_TRUE(
       changes_trie,
-      ChangesTrie::create(overlay, std::move(storage), Hash256{}));
+      ChangesTrie::create(overlay, std::move(storage), 99));
   ASSERT_EQ(
       changes_trie->getRoot().value(),
       "bb0c2ef6e1d36d5490f9766cfcc7dfe2a6ca804504c3bb206053890d6dd02376"_hash256);
