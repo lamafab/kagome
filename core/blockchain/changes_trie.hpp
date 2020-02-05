@@ -9,6 +9,7 @@
 #include "common/blob.hpp"
 #include "common/buffer.hpp"
 #include "outcome/outcome.hpp"
+#include "primitives/common.hpp"
 #include "storage/face/generic_map.hpp"
 #include "storage/runtime_overlay_storage/impl/overlay_trie_db_impl.hpp"
 #include "storage/trie/impl/calculate_tree_root.hpp"
@@ -17,19 +18,37 @@ namespace kagome::blockchain {
 
   class ChangesTrie {
    public:
+    struct ExtrinsicIndex {
+      primitives::BlockNumber number;
+      common::Buffer key;
+    };
+
     static outcome::result<std::unique_ptr<ChangesTrie>> create(
         const std::shared_ptr<storage::runtime_overlay_storage::OverlayTrieDb>
             &overlay_storage,
         std::unique_ptr<
             storage::face::PersistentMap<common::Buffer, common::Buffer>>
             content_storage,
-        const common::Hash256 &parent_hash) {
+        const primitives::BlockNumber &parent_number) {
       auto trie = ChangesTrie();
       trie.content_storage_ = std::move(content_storage);
 
-      for (auto it = overlay_storage->changesCursor(); it->isValid(); it->next()) {
-        OUTCOME_TRY(extrs, scale::encode(it->value().changes_extrinsics));
-        OUTCOME_TRY(trie.content_storage_->put(it->key(), common::Buffer{extrs}));
+      for (auto it = overlay_storage->changesCursor(); it->isValid();
+           it->next()) {
+        auto &&key = it->key();
+        auto &&value = it->value();
+        if (value.changes_extrinsics.empty()) {
+          continue;
+        }
+        // TODO(Harrm) ignore temporary values (values that have null value at
+        // the end of operation AND are not in storage at the beginning of
+        // operation
+
+        ExtrinsicIndex idx{.key = key, .number = parent_number + 1};
+
+        OUTCOME_TRY(extrs, scale::encode(value.changes_extrinsics));
+        OUTCOME_TRY(
+            trie.content_storage_->put(it->key(), common::Buffer{extrs}));
       }
       return std::make_unique<ChangesTrie>(std::move(trie));
     }
