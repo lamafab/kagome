@@ -3,11 +3,34 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "storage/trie/impl/calculate_tree_root.hpp"
-
 #include <gtest/gtest.h>
+
+#include "storage/trie/impl/calculate_tree_root.hpp"
 #include "testutil/literals.hpp"
 #include "testutil/outcome.hpp"
+
+using kagome::common::Buffer;
+using kagome::storage::InMemoryStorage;
+using kagome::storage::trie::calculateOrderedTrieHash;
+using kagome::storage::trie::calculateTrieRoot;
+using kagome::storage::trie::PolkadotTrieDb;
+using kagome::storage::trie::PolkadotTrieDbBackend;
+
+TEST(TrieRootTest, MatchesTrieRoot) {
+  std::vector<std::pair<Buffer, Buffer>> pairs{
+      {"abba"_buf, "1"_buf}, {"bcca"_buf, "2"_buf}};
+
+  auto res = calculateTrieRoot<Buffer, Buffer>(pairs.begin(), pairs.end());
+  EXPECT_OUTCOME_TRUE(root, res);
+  std::shared_ptr<kagome::storage::PersistentBufferMap> storage = std::make_shared<InMemoryStorage<Buffer, Buffer>>();
+  auto trie = PolkadotTrieDb::createEmpty(std::make_shared<PolkadotTrieDbBackend>(
+      storage, Buffer{}, Buffer{0}));
+  for(auto&& [k, v]: pairs) {
+    EXPECT_OUTCOME_TRUE_1(trie->put(k, v));
+  }
+
+  ASSERT_EQ(trie->getRootHash(), root);
+}
 
 /**
  * @given a set of values, which ordered trie hash we want to calculate

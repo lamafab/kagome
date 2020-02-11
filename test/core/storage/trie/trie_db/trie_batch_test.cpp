@@ -62,7 +62,7 @@ class MockPolkadotTrieDb : public PolkadotTrieDb {
   MOCK_CONST_METHOD0(getRootHash, Buffer());
 };
 
-class MockDb : public kagome::storage::InMemoryStorage {
+class MockDb : public kagome::storage::InMemoryStorage<Buffer, Buffer> {
  public:
   MOCK_METHOD2(put, outcome::result<void>(const Buffer &, const Buffer &));
 

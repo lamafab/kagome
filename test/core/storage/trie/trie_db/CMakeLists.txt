@@ -8,7 +8,7 @@ addtest(polkadot_trie_db_test
     polkadot_codec_node_decoding_test.cpp
     trie_db_test.cpp
     trie_batch_test.cpp
-    ordered_trie_hash_test.cpp
+    calculate_trie_root_test.cpp
     )
 target_link_libraries(polkadot_trie_db_test
     leveldb
