@@ -2,17 +2,28 @@
 
 ## Project details
 
-Project:    Kagome - C++17 implementation of Polkadot Runtime Environment  
-URL:        https://github.com/soramitsu/kagome  
+Project
+: Kagome - C++17 implementation of Polkadot Runtime Environment
 
-Code review issue tracker: https://github.com/w3f/polkadot-spec/issues/172
-Review based on commit: `988bc6d`  
+URL
+: https://github.com/soramitsu/kagome
+
+Code review issue tracker
+: https://github.com/w3f/polkadot-spec/issues/172
+
+Review based on commit
+: `988bc6d`
 
 ## Author
 
-Author:     Fabio Lama  
-Start date: 01. May 2020  
-End date:   ...  
+Author
+: Fabio Lama
+
+Start date
+: 01. May 2020
+
+End date
+:  ...
 
 ## Components
 
@@ -56,20 +67,34 @@ Root Code path: `core/scale`
 
 ### Relevant types
 
-Code path:      `core/scale/scale.hpp`  
-Namespace:      `kagome::scale`
-Description:    Convenience functions for encoding/decoding primitive types to stream.
-Code:
+***
+
+Code path
+: `core/scale/scale.hpp`
+
+Namespace
+: `kagome::scale`
+
+Description
+: Convenience functions for encoding/decoding primitive types to stream.
+
 
 ```cpp
 outcome::result<std::vector<uint8_t>> encode(...)
 outcome::result<T> decode(...)
 ```
 
-Code path:      `core/scale/scale_encoder_stream.hpp`  
-Namespace:      `kagome::scale`  
-Description:    The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method.  
-Code:
+***
+
+Code path
+: `core/scale/scale_encoder_stream.hpp`
+
+Namespace
+: `kagome::scale`
+
+Description
+: The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method.
+
 
 ```cpp
 class ScaleEncoderStream {
@@ -104,10 +129,16 @@ class ScaleEncoderStream {
 }
 ```
 
-Code path:      `core/scale/scale_decoder_stream.hpp`  
-Namespace:      `kagome::scale`  
-Description:    The Class `ScaleDecoderStream` is the primary way of decoding data from SCALE. The class can decode with the `>>` operator and assign directly to variables.  
-Code:
+***
+
+Code path
+: `core/scale/scale_decoder_stream.hpp`
+
+Namespace
+: `kagome::scale`
+
+Description
+: The Class `ScaleDecoderStream` is the primary way of decoding data from SCALE. The class can decode with the `>>` operator and assign directly to variables.
 
 ```cpp
 class ScaleDecoderStream {
@@ -141,15 +172,20 @@ class ScaleDecoderStream {
 }
 ```
 
+***
+
 ### Internal mechanism
 
 #### Encode compact integers
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-|Code path:   | `core/scale/scale_encoder_stream.cpp` |
-|Function:    | `encodeCompactInteger(..)`            |
-|Conformance: | **compliant**                         |
+Code path
+: `core/scale/scale_encoder_stream.cpp`
+
+Function
+: `encodeCompactInteger(..)`
+
+Conformance
+: **compliant**
 
 1. The function identifies the integer size and calls the correspond function internally. The function returns the mode of the compact integer.
 
@@ -185,11 +221,14 @@ inline void encodeThirdCategory(uint32_t value, ScaleEncoderStream &out) {
 
 #### Encode optional booleans
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-|Code path:   | `core/scale/scale_encoder_stream.cpp` |
-|Function:    | `encodeOptionalBool(..)`              |
-|Conformance: | **compliant**                         |
+Code path
+: `core/scale/scale_encoder_stream.cpp`
+
+Function
+: `encodeOptionalBool(..)`
+
+Conformance
+: **compliant**
 
 1. The function checks if the variable contains a value.
     - If it does not, encode as `0x00`.
@@ -211,21 +250,27 @@ return putByte(static_cast<uint8_t>(result));
 
 #### Encode fixed-width integer
 
-|             |                                             |
-| ----------- | ------------------------------------------- |
-|Code path:   | `core/scale/detail/fixed_witdh_integer.hpp` |
-|Function:    | `encodeInteger(..)`                         |
-|Conformance: | **compliant**                               |
+Code path
+: `core/scale/detail/fixed_witdh_integer.hpp`
+
+Function
+: `encodeInteger(..)`
+
+Conformance
+: **compliant**
 
 1. Converts the fixed-width integer to little-endian representation.
 
 #### Encode Vectors (lists, series, arrays)
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-|Code path:   | `core/scale/scale_encoder_stream.hpp` |
-|Function:    | `encodeCollection(..)`                |
-|Conformance: | **compliant**                         |
+Code path
+: `core/scale/scale_encoder_stream.hpp`
+
+Function
+: `encodeCollection(..)`
+
+Conformance
+: **compliant**
 
 1. Writes the size (amount of elements) of the collection to the buffer (by using a compact integer type).
 2. Writes each element to the buffer.
@@ -248,11 +293,14 @@ TODO: Does each element get encoded accordingly?
 
 #### Encode boolean
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-|Code path:   | `core/scale/scale_encoder_stream.hpp` |
-|Function:    | `ScaleEncoderStream &operator<<(..)`  |
-|Conformance: | **compliant**                         |
+Code path
+: `core/scale/scale_encoder_stream.hpp`
+
+Function
+: `ScaleEncoderStream &operator<<(..)`
+
+Conformance
+: **compliant**
 
 1. Checks if the value is `true`.
     - If it is, write `0x01` to buffer.
