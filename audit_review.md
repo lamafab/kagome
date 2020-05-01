@@ -187,7 +187,7 @@ Function
 Conformance
 : **compliant**
 
-1. The function identifies the integer size and calls the correspond function internally. The function returns the mode of the compact integer.
+1. The function identifies the integer size and calls the corresponding function internally. The function returns the mode of the compact integer.
 
 ```cpp
 inline void encodeFirstCategory(uint8_t value, ScaleEncoderStream &out) {
@@ -364,44 +364,12 @@ switch (flag) {
     }
 
     case 0b10u: {
-        number = first_byte;
-        size_t multiplier = 256u;
-        if (!stream.hasMore(3u)) {
-        // not enough data to decode integer
-        common::raise(DecodeError::NOT_ENOUGH_DATA);
-        }
-
-        for (auto i = 0u; i < 3u; ++i) {
-        // we assured that there are 3 more bytes,
-        // no need to make checks in a loop
-        number += (stream.nextByte()) * multiplier;
-        multiplier = multiplier << 8u;
-        }
-        number = number >> 2u;
-        break;
+        // ...
     }
 
     case 0b11: {
-        auto bytes_count = ((first_byte) >> 2u) + 4u;
-        if (!stream.hasMore(bytes_count)) {
-        // not enough data to decode integer
-        common::raise(DecodeError::NOT_ENOUGH_DATA);
-        }
-
-        CompactInteger multiplier{1u};
-        CompactInteger value = 0;
-        // we assured that there are m more bytes,
-        // no need to make checks in a loop
-        for (auto i = 0u; i < bytes_count; ++i) {
-        value += (stream.nextByte()) * multiplier;
-        multiplier *= 256u;
-        }
-
-        return value;  // special case
+        // ...
     }
-
-    default:
-        UNREACHABLE
 }
 ```
 
@@ -411,7 +379,7 @@ Code path
 : `core/scale/scale_decoder_stream.cpp`
 
 Function
-: `decodeOptionalBool()`
+: `decodeOptionalBool(..)`
 
 Conformance
 : **compliant**
@@ -436,6 +404,56 @@ switch (byte) {
 }
 ```
 
+#### Decode fixed-width integer
+
+Code path
+: `core/scale/detail/fixed_witdh_integer.hpp`
+
+Function
+: `decodeInteger(..)`
+
+Conformance
+: **compliant**
+
+1. Decodes the little endian integer into it's native type (the code is a little longer than expected since they handle endianness themselves).
+2. Writes it to buffer.
+
+#### Decode Vectors (lists, series, arrays)
+
+Code path
+: `core/scale/scale_decoder_stream.hpp`
+
+Function
+: `ScaleDecoderStream &operator>>(std::vector<T> &v)`
+
+Conformance
+: **compliant**
+
+1. Reads the first byte (compact integer) to determine size
+2. Check if the buffer has enough space for all the items.
+3. Decodes the items into its corresponding type.
+
+```cpp
+v.clear();
+CompactInteger size{0u};
+*this >> size;
+
+using size_type = typename std::vector<T>::size_type;
+
+if (size > std::numeric_limits<size_type>::max()) {
+    common::raise(DecodeError::TOO_MANY_ITEMS);
+}
+auto item_count = size.convert_to<size_type>();
+v.reserve(item_count);
+for (size_type i = 0u; i < item_count; ++i) {
+    T t{};
+    *this >> t;
+    v.push_back(std::move(t));
+}
+return *this;
+```
+
 ### Component: Host API
+
 
 ...
