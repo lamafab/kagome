@@ -2,70 +2,74 @@
 
 ## Project details
 
-Project: Kagome - C++17 implementation of Polkadot Runtime Environment  
-URL: https://github.com/soramitsu/kagome  
-Review based on commit: `988bc6d`  
+Project:    Kagome - C++17 implementation of Polkadot Runtime Environment  
+URL:        https://github.com/soramitsu/kagome  
 
 Code review issue tracker: https://github.com/w3f/polkadot-spec/issues/172
+Review based on commit: `988bc6d`  
 
 ## Author
 
-Author: Fabio Lama  
+Author:     Fabio Lama  
 Start date: 01. May 2020  
-End date: ...  
+End date:   ...  
 
 ## Components
 
 - State Transition
-- SCALE
+- SCALE Codec
 - Host API
 
-## State Transition
+## Conformance Summary
 
-...
-
-## SCALE
-
-**Root Code path**: `core/scale`
-
-### Conformance summary
+### SCALE Codec
 
 The Kagome implementation fulfills the following requirements for SCALE encoding:
 
-- [ ] - Encoding/Decoding of fixed-width integers
-  - [ ] - (un-)signed 8-bit integers
-  - [ ] - (un-)signed 16-bit integers
-  - [ ] - (un-)signed 32-bit integers
-  - [ ] - (un-)signed 64-bit integers
-  - [ ] - (un-)signed 128-bit integers
-- [ ] - Encoding/Decoding of compact integers
-  - [ ] - single-byte mode
-  - [ ] - two-byte mode
-  - [ ] - four-byte mode
-  - [ ] - big integer mode
-- [ ] - Encoding/Decoding of booleans
-- [ ] - Encoding/Decoding of optional values ("Option")
-- [ ] - Encoding/Decoding special case of optional boolean type ("Option")
-- [ ] - Encoding/Decoding of success/failure indicators ("Result")
-- [ ] - Encoding/Decoding of Vectors (lists, series, arrays)
-- [ ] - Encoding/Decoding of tuples
-- [ ] - Encoding/Decoding of data structures
-- [ ] - Encoding/Decoding of enumerations
+- [ ] Encoding/Decoding of fixed-width integers
+  - [ ] (un-)signed 8-bit integers
+  - [ ] (un-)signed 16-bit integers
+  - [ ] (un-)signed 32-bit integers
+  - [ ] (un-)signed 64-bit integers
+  - [ ] (un-)signed 128-bit integers
+- [ ] Encoding/Decoding of compact integers
+  - [ ] single-byte mode
+  - [ ] two-byte mode
+  - [ ] four-byte mode
+  - [ ] big integer mode
+- [ ] Encoding/Decoding of booleans
+- [ ] Encoding/Decoding of optional values ("Option")
+- [ ] Encoding/Decoding special case of optional boolean type ("Option")
+- [ ] Encoding/Decoding of success/failure indicators ("Result")
+- [ ] Encoding/Decoding of Vectors (lists, series, arrays)
+- [ ] Encoding/Decoding of tuples
+- [ ] Encoding/Decoding of data structures
+- [ ] Encoding/Decoding of enumerations
 
-### Responsible types
+## Component: State Transition
 
-**Code path**: `core/scale/scale.hpp`  
-**Namespace**: `kagome::scale`
-**Description**: Convenience functions for encoding/decoding primitive types to stream.
+...
+
+## Component: SCALE Codec
+
+Root Code path: `core/scale`
+
+### Relevant types
+
+Code path:      `core/scale/scale.hpp`  
+Namespace:      `kagome::scale`
+Description:    Convenience functions for encoding/decoding primitive types to stream.
+Code:
 
 ```cpp
 outcome::result<std::vector<uint8_t>> encode(...)
 outcome::result<T> decode(...)
 ```
 
-**Code path**: `core/scale/scale_encoder_stream.hpp`  
-**Namespace**: `kagome::scale`  
-**Description**: The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method.
+Code path:      `core/scale/scale_encoder_stream.hpp`  
+Namespace:      `kagome::scale`  
+Description:    The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method.  
+Code:
 
 ```cpp
 class ScaleEncoderStream {
@@ -100,9 +104,10 @@ class ScaleEncoderStream {
 }
 ```
 
-**Code path**: `core/scale/scale_decoder_stream.hpp`  
-**Namespace**: `kagome::scale`  
-**Description**: The Class `ScaleDecoderStream` is the primary way of decoding data from SCALE. The class can decode with the `>>` operator and assign directly to variables.
+Code path:      `core/scale/scale_decoder_stream.hpp`  
+Namespace:      `kagome::scale`  
+Description:    The Class `ScaleDecoderStream` is the primary way of decoding data from SCALE. The class can decode with the `>>` operator and assign directly to variables.  
+Code:
 
 ```cpp
 class ScaleDecoderStream {
@@ -140,8 +145,11 @@ class ScaleDecoderStream {
 
 #### Encode compact integers
 
-**Code path**: `core/scale/scale_encoder_stream.cpp`
-**Function**: `encodeCompactInteger(..)`
+|             |                                       |
+| ----------- | ------------------------------------- |
+|Code path:   | `core/scale/scale_encoder_stream.cpp` |
+|Function:    | `encodeCompactInteger(..)`            |
+|Conformance: | **compliant**                         |
 
 1. The function identifies the integer size and calls the correspond function internally. The function returns the mode of the compact integer.
 
@@ -173,26 +181,90 @@ inline void encodeThirdCategory(uint32_t value, ScaleEncoderStream &out) {
 2. Count the number of bytes required to represent value.
 3. TODO: Clarify `uint8_t header = (bigIntLength - 4) * 4 + 3;`
 4. Shift the value accordingly, prefixed by the compact integer mode indicator.
+5. Write result to buffer.
 
 #### Encode optional booleans
 
-**Code path**: `core/scale/scale_encoder_stream.cpp`
-**Function**: `encodeOptionalBool(..)`
+|             |                                       |
+| ----------- | ------------------------------------- |
+|Code path:   | `core/scale/scale_encoder_stream.cpp` |
+|Function:    | `encodeOptionalBool(..)`              |
+|Conformance: | **compliant**                         |
 
 1. The function checks if the variable contains a value.
-  - If it does not, encode as `0x00`.
-  - If it does and boolean is `false`, encode as `0x01`.
-  - If it does and boolean is `true`, encode as `0x02`.
+    - If it does not, encode as `0x00`.
+    - If it does and boolean is `false`, encode as `0x01`.
+    - If it does and boolean is `true`, encode as `0x02`.
+2. Write result to buffer.
+
+```cpp
+auto result = OptionalBool::TRUE;
+
+if (!v.has_value()) {
+    result = OptionalBool::NONE;
+} else if (!*v) {
+    result = OptionalBool::FALSE;
+}
+
+return putByte(static_cast<uint8_t>(result));
+```
 
 #### Encode fixed-width integer
 
-**Code path**: `core/scale/detail/fixed_witdh_integer.hpp`
-**Function**: `encodeInteger(..)`
+|             |                                             |
+| ----------- | ------------------------------------------- |
+|Code path:   | `core/scale/detail/fixed_witdh_integer.hpp` |
+|Function:    | `encodeInteger(..)`                         |
+|Conformance: | **compliant**                               |
 
 1. Converts the fixed-width integer to little-endian representation.
 
-#### 
+#### Encode Vectors (lists, series, arrays)
 
-### Host API
+|             |                                       |
+| ----------- | ------------------------------------- |
+|Code path:   | `core/scale/scale_encoder_stream.hpp` |
+|Function:    | `encodeCollection(..)`                |
+|Conformance: | **compliant**                         |
+
+1. Writes the size (amount of elements) of the collection to the buffer (by using a compact integer type).
+2. Writes each element to the buffer.
+
+```cpp
+template <class It>
+ScaleEncoderStream &encodeCollection(const CompactInteger &size,
+        It &&begin,
+        It &&end)
+{
+    *this << size;
+    for (auto &&it = begin; it != end; ++it) {
+    *this << *it;
+    }
+    return *this;
+}
+```
+
+TODO: Does each element get encoded accordingly?
+
+#### Encode boolean
+
+|             |                                       |
+| ----------- | ------------------------------------- |
+|Code path:   | `core/scale/scale_encoder_stream.hpp` |
+|Function:    | `ScaleEncoderStream &operator<<(..)`  |
+|Conformance: | **compliant**                         |
+
+1. Checks if the value is `true`.
+    - If it is, write `0x01` to buffer.
+    - If it is not, write `0x00` to buffer.
+
+```cpp
+if constexpr (std::is_same<I, bool>::value) {
+    uint8_t byte = (v ? 1u : 0u);
+    return putByte(byte);
+}
+```
+
+### Component: Host API
 
 ...
