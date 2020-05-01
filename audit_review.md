@@ -59,49 +59,88 @@ Code path: `core/scale/scale.hpp`
 Namespace: `kagome::scale`
 Description: Convenience functions for encoding/decoding primitive types to stream.
 
-Function interface(s):
+Relevant interfaces:
 ```cpp
 outcome::result<std::vector<uint8_t>> encode(...)
 outcome::result<T> decode(...)
 ```
 
 Code path: `core/scale/scale_encoder_stream.hpp`  
-Namespace: `kagome::scale`
-Description: The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method on the stream.
+Namespace: `kagome::scale`  
+Description: The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method.
 
-Function interface(s):
+Relevant interfaces:
 ```cpp
 class ScaleEncoderStream {
     public:
-        // encodes pair of values
+        // Return vector of bytes containing encoded data.
+        std::vector<uint8_t> data() const;
+        // Encodes pair of values
         ScaleEncoderStream &operator<<(const std::pair<F, S> &p) { ... }
-        // encode variant value
+        // Encode variant value
         ScaleEncoderStream &operator<<(const boost::variant<T...> &v) { ... }
-        // encode collection of items of the same type
+        // Encode collection of items of the same type
         ScaleEncoderStream &operator<<(const std::vector<T> &c) { ... }
-        // encode optional value
+        // Encode optional value
         ScaleEncoderStream &operator<<(const boost::optional<T> &v) { ... }
-        // appends sequence of bytes
+        // Appends sequence of bytes
         ScaleEncoderStream &operator<<(const gsl::span<T> &v) { ... }
-        // scale-encodes array of items
+        // Scale-encodes array of items
         ScaleEncoderStream &operator<<(const std::array<T, size> &a) { ... }
-        // encodes unsigned 256-bit integer
+        // Encodes unsigned 256-bit integer
         ScaleEncoderStream &operator<<(const boost::multiprecision::uint256_t &i) { ... }
-        // encodes reference wrapper of a type
+        // Encodes reference wrapper of a type
         ScaleEncoderStream &operator<<(const std::reference_wrapper<T> &v) { ... }
-        // encodes a string view
+        // Encodes a string view
         ScaleEncoderStream &operator<<(std::string_view sv) { ... }
-        // encodes any integral type including bool
+        // Encodes any integral type including bool
         template <typename T,
                 typename I = std::decay_t<T>,
                 typename = std::enable_if_t<std::is_integral<I>::value>>
         ScaleEncoderStream &operator<<(T &&v) { ... }
-        // encodes value as compact integer
+        // Encodes value as compact integer
         ScaleEncoderStream &operator<<(const CompactInteger &v);
 }
 ```
 
-#### Internal 
+Code path: `core/scale/scale_decoder_stream.hpp`  
+Namespace: `kagome::scale`  
+Description: The Class `ScaleDecoderStream` is the primary way of decoding data from SCALE. The class can decode with the `>>` operator and assign directly to variables.
+
+Relevant interfaces:
+```cpp
+class ScaleDecoderStream {
+    public:
+        // Decode pair of values
+        template <class F, class S>
+        ScaleDecoderStream &operator>>(std::pair<F, S> &p) { ... }
+        // Decode variant value
+        template <class... T>
+        ScaleDecoderStream &operator>>(boost::variant<T...> &v) { ... }
+        // Decode any integral type including bool
+        template <typename T,
+                typename I = std::decay_t<T>,
+                typename = std::enable_if_t<std::is_integral<I>::value>>
+        ScaleDecoderStream &operator>>(T &v) { ... }
+        // Decode any optional value
+        template <class T>
+        ScaleDecoderStream &operator>>(boost::optional<T> &v) { ... }
+        // Decode compact integer value
+        ScaleDecoderStream &operator>>(CompactInteger &v);
+        // Decode collection of items
+        template <class T>
+        ScaleDecoderStream &operator>>(std::vector<T> &v) { ... }
+        // Decode array of items
+        template <typename T, size_t size>
+        ScaleDecoderStream &operator>>(std::array<T, size> &a) { ... }
+        // Decode unsigned 256-bit integer
+        ScaleDecoderStream &operator>>(boost::multiprecision::uint256_t &i) { ... }
+        // Decode string
+        ScaleDecoderStream &operator>>(std::string &v);
+}
+```
+
+#### Internal mechanism
 
 ### Host API
 
