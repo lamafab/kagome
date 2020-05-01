@@ -5,7 +5,7 @@
 Project
 : Kagome - C++17 implementation of Polkadot Runtime Environment
 
-URL
+Repository
 : https://github.com/soramitsu/kagome
 
 Code review issue tracker
@@ -297,7 +297,7 @@ Code path
 : `core/scale/scale_encoder_stream.hpp`
 
 Function
-: `ScaleEncoderStream &operator<<(..)`
+: `ScaleEncoderStream &operator<<(T &&v)`
 
 Conformance
 : **compliant**
@@ -310,6 +310,129 @@ Conformance
 if constexpr (std::is_same<I, bool>::value) {
     uint8_t byte = (v ? 1u : 0u);
     return putByte(byte);
+}
+```
+
+#### Encode optional value
+
+Code path
+: `core/scale/scale_encoder_stream.hpp`
+
+Function
+: `ScaleEncoderStream &operator<<(const boost::optional<T> &v)`
+
+Conformance
+: **compliant**
+
+1. Checks if the variable has a value.
+    - If it does, write `0x01` to buffer followed by the value.
+    - If it does not, write `0x00` to buffer.
+
+TODO: Does the followed value get encoded accordingly?
+
+#### Decode compact integers
+
+Code path
+: `core/scale/scale_decoder_stream.cpp`
+
+Function
+: `decodeCompactInteger(..)`
+
+Conformance
+: **compliant**
+
+1. Read the first two bits in order to identify the compact mode.
+2. Based on the identifier, it converts the remaining bits into the corresponding integer type (also checks if the reserved buffer has enough space to be written to).
+
+```cpp
+const uint8_t flag = (first_byte)&0b00000011u;
+size_t number = 0u;
+
+switch (flag) {
+    case 0b00u: {
+        number = static_cast<size_t>(first_byte >> 2u);
+        break;
+    }
+
+    case 0b01u: {
+        auto second_byte = stream.nextByte();
+
+        number = (static_cast<size_t>((first_byte)&0b11111100u)
+                + static_cast<size_t>(second_byte) * 256u)
+                >> 2u;
+        break;
+    }
+
+    case 0b10u: {
+        number = first_byte;
+        size_t multiplier = 256u;
+        if (!stream.hasMore(3u)) {
+        // not enough data to decode integer
+        common::raise(DecodeError::NOT_ENOUGH_DATA);
+        }
+
+        for (auto i = 0u; i < 3u; ++i) {
+        // we assured that there are 3 more bytes,
+        // no need to make checks in a loop
+        number += (stream.nextByte()) * multiplier;
+        multiplier = multiplier << 8u;
+        }
+        number = number >> 2u;
+        break;
+    }
+
+    case 0b11: {
+        auto bytes_count = ((first_byte) >> 2u) + 4u;
+        if (!stream.hasMore(bytes_count)) {
+        // not enough data to decode integer
+        common::raise(DecodeError::NOT_ENOUGH_DATA);
+        }
+
+        CompactInteger multiplier{1u};
+        CompactInteger value = 0;
+        // we assured that there are m more bytes,
+        // no need to make checks in a loop
+        for (auto i = 0u; i < bytes_count; ++i) {
+        value += (stream.nextByte()) * multiplier;
+        multiplier *= 256u;
+        }
+
+        return value;  // special case
+    }
+
+    default:
+        UNREACHABLE
+}
+```
+
+#### Decode optional booleans
+
+Code path
+: `core/scale/scale_decoder_stream.cpp`
+
+Function
+: `decodeOptionalBool()`
+
+Conformance
+: **compliant**
+
+1. Checks the first byte.
+    - If it's `0x00`, it returns "None" (`boost::none`).
+    - If it's `0x01`, it returns `false`.
+    - If it's `0x02`, it returns `true`.
+
+```cpp
+auto byte = nextByte();
+switch (byte) {
+    case static_cast<uint8_t>(OptionalBool::NONE):
+    return boost::none;
+    break;
+    case static_cast<uint8_t>(OptionalBool::FALSE):
+    return false;
+    case static_cast<uint8_t>(OptionalBool::TRUE):
+    return true;
+    default:
+    common::raise(DecodeError::UNEXPECTED_VALUE);
 }
 ```
 
