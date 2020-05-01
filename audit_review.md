@@ -28,7 +28,7 @@ End date: ...
 
 ### SCALE
 
-Root code path: `core/scale`
+**Root Code path**: `core/scale`
 
 #### Conformance summary
 
@@ -55,21 +55,21 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 
 #### Public functions
 
-Code path: `core/scale/scale.hpp`  
-Namespace: `kagome::scale`
-Description: Convenience functions for encoding/decoding primitive types to stream.
+**Code path**: `core/scale/scale.hpp`  
+**Namespace**: `kagome::scale`
+**Description**: Convenience functions for encoding/decoding primitive types to stream.
 
-Relevant interfaces:
+**Relevant interfaces**:
 ```cpp
 outcome::result<std::vector<uint8_t>> encode(...)
 outcome::result<T> decode(...)
 ```
 
-Code path: `core/scale/scale_encoder_stream.hpp`  
-Namespace: `kagome::scale`  
-Description: The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method.
+**Code path**: `core/scale/scale_encoder_stream.hpp`  
+**Namespace**: `kagome::scale`  
+**Description**: The Class `ScaleEncoderStream` is the primary way of encoding data to SCALE. The class can be overloaded with the `<<` operator and return the result when calling the `.data()` method.
 
-Relevant interfaces:
+**Relevant interfaces**:
 ```cpp
 class ScaleEncoderStream {
     public:
@@ -103,11 +103,11 @@ class ScaleEncoderStream {
 }
 ```
 
-Code path: `core/scale/scale_decoder_stream.hpp`  
-Namespace: `kagome::scale`  
-Description: The Class `ScaleDecoderStream` is the primary way of decoding data from SCALE. The class can decode with the `>>` operator and assign directly to variables.
+**Code path**: `core/scale/scale_decoder_stream.hpp`  
+**Namespace**: `kagome::scale`  
+**Description**: The Class `ScaleDecoderStream` is the primary way of decoding data from SCALE. The class can decode with the `>>` operator and assign directly to variables.
 
-Relevant interfaces:
+**Relevant interfaces**:
 ```cpp
 class ScaleDecoderStream {
     public:
