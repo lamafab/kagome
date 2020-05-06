@@ -176,9 +176,7 @@ class ScaleDecoderStream {
 
 ### Internal mechanism
 
-#### Fixed-width integer
-
-**Encoding**
+#### Fixed-width integer encoding
 
 Code path
 : `core/scale/detail/fixed_witdh_integer.hpp`
@@ -191,7 +189,9 @@ Conformance
 
 1. Converts the fixed-width integer to little-endian representation.
 
-**Decoding**
+***
+
+#### Fixed-width integer decoding
 
 Code path
 : `core/scale/detail/fixed_witdh_integer.hpp`
@@ -205,9 +205,9 @@ Conformance
 1. Decodes the little endian integer into it's native type (the code is a little longer than expected since they handle endianness themselves).
 2. Writes it to buffer.
 
-#### Compact integer
+***
 
-**Encoding**
+#### Compact integer encoding
 
 Code path
 : `core/scale/scale_encoder_stream.cpp`
@@ -250,7 +250,9 @@ inline void encodeThirdCategory(uint32_t value, ScaleEncoderStream &out) {
 4. Shift the value accordingly, prefixed by the compact integer mode indicator.
 5. Write result to buffer.
 
-**Decoding**
+***
+
+#### Compact integer decoding
 
 Code path
 : `core/scale/scale_decoder_stream.cpp`
@@ -293,9 +295,9 @@ switch (flag) {
 }
 ```
 
-#### Boolean
+***
 
-**Encoding**
+#### Boolean encoding
 
 Code path
 : `core/scale/scale_encoder_stream.hpp`
@@ -317,7 +319,9 @@ if constexpr (std::is_same<I, bool>::value) {
 }
 ```
 
-**Decoding**
+***
+
+#### Boolean decoding
 
 Code path
 : `core/scale/scale_decoder_stream.hpp`
@@ -342,9 +346,9 @@ switch (byte) {
 }
 ```
 
-#### Optional value
+***
 
-**Encoding**
+#### Optional value encoding
 
 Code path
 : `core/scale/scale_encoder_stream.hpp`
@@ -361,13 +365,15 @@ Conformance
 
 TODO: Does the followed value get encoded accordingly?
 
-**Decoding**
+***
+
+#### Optional value decoding
 
 TODO: 
 
-#### Optional booleans
+***
 
-**Encode**
+#### Optional booleans encoding
 
 Code path
 : `core/scale/scale_encoder_stream.cpp`
@@ -396,7 +402,9 @@ if (!v.has_value()) {
 return putByte(static_cast<uint8_t>(result));
 ```
 
-**Decode**
+***
+
+#### Optional booleans decoding
 
 Code path
 : `core/scale/scale_decoder_stream.cpp`
@@ -427,7 +435,9 @@ switch (byte) {
 }
 ```
 
-#### Encode Vectors (lists, series, arrays)
+***
+
+#### Vectors (lists, series, arrays) encoding
 
 Code path
 : `core/scale/scale_encoder_stream.hpp`
@@ -457,7 +467,9 @@ ScaleEncoderStream &encodeCollection(const CompactInteger &size,
 
 TODO: Does each element get encoded accordingly?
 
-#### Decode Vectors (lists, series, arrays)
+***
+
+#### Vectors (lists, series, arrays) decoding
 
 Code path
 : `core/scale/scale_decoder_stream.hpp`
@@ -491,8 +503,6 @@ for (size_type i = 0u; i < item_count; ++i) {
 }
 return *this;
 ```
-
-#### Decode 
 
 ### Component: Host API
 
