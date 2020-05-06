@@ -234,7 +234,7 @@ Conformance
     - If it does not, encode as `0x00`.
     - If it does and boolean is `false`, encode as `0x01`.
     - If it does and boolean is `true`, encode as `0x02`.
-2. Write result to buffer.
+2. Writes the result to buffer.
 
 ```cpp
 auto result = OptionalBool::TRUE;
@@ -452,6 +452,33 @@ for (size_type i = 0u; i < item_count; ++i) {
 }
 return *this;
 ```
+
+#### Decode booleans
+
+Code path
+: `core/scale/scale_decoder_stream.hpp`
+
+Function
+: `ScaleDecoderStream::decodeBool()`
+
+Conformance
+: **compliant**
+
+1. Returns the corresponding value.
+
+```cpp
+auto byte = nextByte();
+switch (byte) {
+    case 0u:
+        return false;
+    case 1u:
+        return true;
+    default:
+        common::raise(DecodeError::UNEXPECTED_VALUE);
+}
+```
+
+#### Decode 
 
 ### Component: Host API
 
