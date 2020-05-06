@@ -37,22 +37,22 @@ End date
 
 The Kagome implementation fulfills the following requirements for SCALE encoding:
 
-- [ ] Encoding/Decoding of fixed-width integers
-  - [ ] (un-)signed 8-bit integers
-  - [ ] (un-)signed 16-bit integers
-  - [ ] (un-)signed 32-bit integers
-  - [ ] (un-)signed 64-bit integers
-  - [ ] (un-)signed 128-bit integers
-- [ ] Encoding/Decoding of compact integers
-  - [ ] single-byte mode
-  - [ ] two-byte mode
-  - [ ] four-byte mode
-  - [ ] big integer mode
-- [ ] Encoding/Decoding of booleans
-- [ ] Encoding/Decoding of optional values ("Option")
-- [ ] Encoding/Decoding special case of optional boolean type ("Option")
+- [x] Encoding/Decoding of fixed-width integers
+  - [x] (un-)signed 8-bit integers
+  - [x] (un-)signed 16-bit integers
+  - [x] (un-)signed 32-bit integers
+  - [x] (un-)signed 64-bit integers
+  - [x] (un-)signed 128-bit integers
+- [x] Encoding/Decoding of compact integers
+  - [x] single-byte mode
+  - [x] two-byte mode
+  - [x] four-byte mode
+  - [x] big integer mode
+- [x] Encoding/Decoding of booleans
+- [x] Encoding/Decoding of optional values ("Option")
+- [x] Encoding/Decoding special case of optional boolean type ("Option")
 - [ ] Encoding/Decoding of success/failure indicators ("Result")
-- [ ] Encoding/Decoding of Vectors (lists, series, arrays)
+- [x] Encoding/Decoding of Vectors (lists, series, arrays)
 - [ ] Encoding/Decoding of tuples
 - [ ] Encoding/Decoding of data structures
 - [ ] Encoding/Decoding of enumerations
@@ -176,7 +176,38 @@ class ScaleDecoderStream {
 
 ### Internal mechanism
 
-#### Encode compact integers
+#### Fixed-width integer
+
+**Encoding**
+
+Code path
+: `core/scale/detail/fixed_witdh_integer.hpp`
+
+Function
+: `encodeInteger(..)`
+
+Conformance
+: **compliant**
+
+1. Converts the fixed-width integer to little-endian representation.
+
+**Decoding**
+
+Code path
+: `core/scale/detail/fixed_witdh_integer.hpp`
+
+Function
+: `decodeInteger(..)`
+
+Conformance
+: **compliant**
+
+1. Decodes the little endian integer into it's native type (the code is a little longer than expected since they handle endianness themselves).
+2. Writes it to buffer.
+
+#### Compact integer
+
+**Encoding**
 
 Code path
 : `core/scale/scale_encoder_stream.cpp`
@@ -219,118 +250,7 @@ inline void encodeThirdCategory(uint32_t value, ScaleEncoderStream &out) {
 4. Shift the value accordingly, prefixed by the compact integer mode indicator.
 5. Write result to buffer.
 
-#### Encode optional booleans
-
-Code path
-: `core/scale/scale_encoder_stream.cpp`
-
-Function
-: `encodeOptionalBool(..)`
-
-Conformance
-: **compliant**
-
-1. The function checks if the variable contains a value.
-    - If it does not, encode as `0x00`.
-    - If it does and boolean is `false`, encode as `0x01`.
-    - If it does and boolean is `true`, encode as `0x02`.
-2. Writes the result to buffer.
-
-```cpp
-auto result = OptionalBool::TRUE;
-
-if (!v.has_value()) {
-    result = OptionalBool::NONE;
-} else if (!*v) {
-    result = OptionalBool::FALSE;
-}
-
-return putByte(static_cast<uint8_t>(result));
-```
-
-#### Encode fixed-width integer
-
-Code path
-: `core/scale/detail/fixed_witdh_integer.hpp`
-
-Function
-: `encodeInteger(..)`
-
-Conformance
-: **compliant**
-
-1. Converts the fixed-width integer to little-endian representation.
-
-#### Encode Vectors (lists, series, arrays)
-
-Code path
-: `core/scale/scale_encoder_stream.hpp`
-
-Function
-: `encodeCollection(..)`
-
-Conformance
-: **compliant**
-
-1. Writes the size (amount of elements) of the collection to the buffer (by using a compact integer type).
-2. Writes each element to the buffer.
-
-```cpp
-template <class It>
-ScaleEncoderStream &encodeCollection(const CompactInteger &size,
-        It &&begin,
-        It &&end)
-{
-    *this << size;
-    for (auto &&it = begin; it != end; ++it) {
-    *this << *it;
-    }
-    return *this;
-}
-```
-
-TODO: Does each element get encoded accordingly?
-
-#### Encode boolean
-
-Code path
-: `core/scale/scale_encoder_stream.hpp`
-
-Function
-: `ScaleEncoderStream &operator<<(T &&v)`
-
-Conformance
-: **compliant**
-
-1. Checks if the value is `true`.
-    - If it is, write `0x01` to buffer.
-    - If it is not, write `0x00` to buffer.
-
-```cpp
-if constexpr (std::is_same<I, bool>::value) {
-    uint8_t byte = (v ? 1u : 0u);
-    return putByte(byte);
-}
-```
-
-#### Encode optional value
-
-Code path
-: `core/scale/scale_encoder_stream.hpp`
-
-Function
-: `ScaleEncoderStream &operator<<(const boost::optional<T> &v)`
-
-Conformance
-: **compliant**
-
-1. Checks if the variable has a value.
-    - If it does, write `0x01` to buffer followed by the value.
-    - If it does not, write `0x00` to buffer.
-
-TODO: Does the followed value get encoded accordingly?
-
-#### Decode compact integers
+**Decoding**
 
 Code path
 : `core/scale/scale_decoder_stream.cpp`
@@ -373,7 +293,110 @@ switch (flag) {
 }
 ```
 
-#### Decode optional booleans
+#### Boolean
+
+**Encoding**
+
+Code path
+: `core/scale/scale_encoder_stream.hpp`
+
+Function
+: `ScaleEncoderStream &operator<<(T &&v)`
+
+Conformance
+: **compliant**
+
+1. Checks if the value is `true`.
+    - If it is, write `0x01` to buffer.
+    - If it is not, write `0x00` to buffer.
+
+```cpp
+if constexpr (std::is_same<I, bool>::value) {
+    uint8_t byte = (v ? 1u : 0u);
+    return putByte(byte);
+}
+```
+
+**Decoding**
+
+Code path
+: `core/scale/scale_decoder_stream.hpp`
+
+Function
+: `ScaleDecoderStream::decodeBool()`
+
+Conformance
+: **compliant**
+
+1. Returns the corresponding value.
+
+```cpp
+auto byte = nextByte();
+switch (byte) {
+    case 0u:
+        return false;
+    case 1u:
+        return true;
+    default:
+        common::raise(DecodeError::UNEXPECTED_VALUE);
+}
+```
+
+#### Optional value
+
+**Encoding**
+
+Code path
+: `core/scale/scale_encoder_stream.hpp`
+
+Function
+: `ScaleEncoderStream &operator<<(const boost::optional<T> &v)`
+
+Conformance
+: **compliant**
+
+1. Checks if the variable has a value.
+    - If it does, write `0x01` to buffer followed by the value.
+    - If it does not, write `0x00` to buffer.
+
+TODO: Does the followed value get encoded accordingly?
+
+**Decoding**
+
+TODO: 
+
+#### Optional booleans
+
+**Encode**
+
+Code path
+: `core/scale/scale_encoder_stream.cpp`
+
+Function
+: `encodeOptionalBool(..)`
+
+Conformance
+: **compliant**
+
+1. The function checks if the variable contains a value.
+    - If it does not, encode as `0x00`.
+    - If it does and boolean is `false`, encode as `0x01`.
+    - If it does and boolean is `true`, encode as `0x02`.
+2. Writes the result to buffer.
+
+```cpp
+auto result = OptionalBool::TRUE;
+
+if (!v.has_value()) {
+    result = OptionalBool::NONE;
+} else if (!*v) {
+    result = OptionalBool::FALSE;
+}
+
+return putByte(static_cast<uint8_t>(result));
+```
+
+**Decode**
 
 Code path
 : `core/scale/scale_decoder_stream.cpp`
@@ -404,19 +427,35 @@ switch (byte) {
 }
 ```
 
-#### Decode fixed-width integer
+#### Encode Vectors (lists, series, arrays)
 
 Code path
-: `core/scale/detail/fixed_witdh_integer.hpp`
+: `core/scale/scale_encoder_stream.hpp`
 
 Function
-: `decodeInteger(..)`
+: `encodeCollection(..)`
 
 Conformance
 : **compliant**
 
-1. Decodes the little endian integer into it's native type (the code is a little longer than expected since they handle endianness themselves).
-2. Writes it to buffer.
+1. Writes the size (amount of elements) of the collection to the buffer (by using a compact integer type).
+2. Writes each element to the buffer.
+
+```cpp
+template <class It>
+ScaleEncoderStream &encodeCollection(const CompactInteger &size,
+        It &&begin,
+        It &&end)
+{
+    *this << size;
+    for (auto &&it = begin; it != end; ++it) {
+    *this << *it;
+    }
+    return *this;
+}
+```
+
+TODO: Does each element get encoded accordingly?
 
 #### Decode Vectors (lists, series, arrays)
 
@@ -451,31 +490,6 @@ for (size_type i = 0u; i < item_count; ++i) {
     v.push_back(std::move(t));
 }
 return *this;
-```
-
-#### Decode booleans
-
-Code path
-: `core/scale/scale_decoder_stream.hpp`
-
-Function
-: `ScaleDecoderStream::decodeBool()`
-
-Conformance
-: **compliant**
-
-1. Returns the corresponding value.
-
-```cpp
-auto byte = nextByte();
-switch (byte) {
-    case 0u:
-        return false;
-    case 1u:
-        return true;
-    default:
-        common::raise(DecodeError::UNEXPECTED_VALUE);
-}
 ```
 
 #### Decode 
