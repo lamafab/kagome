@@ -57,6 +57,80 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 - [ ] Encoding/Decoding of data structures
 - [ ] Encoding/Decoding of enumerations
 
+### Host API
+
+- [ ] Storage
+  - [ ] ext_storage_set
+  - [ ] ext_storage_get
+  - [ ] ext_storage_read
+  - [ ] ext_storage_clear
+  - [ ] ext_storage_exists
+  - [ ] ext_storage_clear_prefix
+  - [ ] ext_storage_root
+  - [ ] ext_storage_changes_root
+  - [ ] ext_storage_next_key
+- [ ] Child Storage
+  - [ ] ext_storage_child_set
+  - [ ] ext_storage_child_get
+  - [ ] ext_storage_child_read
+  - [ ] ext_storage_child_clear
+  - [ ] ext_storage_child_storage_kill
+  - [ ] ext_storage_child_exists
+  - [ ] ext_storage_child_clear_prefix
+  - [ ] ext_storage_child_root
+  - [ ] ext_storage_child_next_key
+- [ ] Crypto
+  - [ ] ext_crypto_ed25519_public_keys
+  - [ ] ext_crypto_ed25519_generate
+  - [ ] ext_crypto_ed25519_sign
+  - [ ] ext_crypto_ed25519_verify
+  - [ ] ext_crypto_sr25519_public_keys
+  - [ ] ext_crypto_sr25519_generate
+  - [ ] ext_crypto_sr25519_sign
+  - [ ] ext_crypto_sr25519_verify
+  - [ ] ext_crypto_secp256k1_ecdsa_recover
+  - [ ] ext_crypto_secp256k1_ecdsa_recover_compressed
+- [ ] Hashing
+  - [ ] ext_hashing_keccak_256
+  - [ ] ext_hashing_sha2_256
+  - [ ] ext_hashing_blake2_128
+  - [ ] ext_hashing_blake2_256
+  - [ ] ext_hashing_twox_64
+  - [ ] ext_hashing_twox_128
+  - [ ] ext_hashing_twox_256
+- [ ] Offchain
+  - [ ] ext_offchain_is_validator
+  - [ ] ext_offchain_submit_transaction
+  - [ ] ext_offchain_network_state
+  - [ ] ext_offchain_timestamp
+  - [ ] ext_offchain_sleep_until
+  - [ ] ext_offchain_random_seed
+  - [ ] ext_offchain_local_storage_set
+  - [ ] ext_offchain_local_storage_compare_and_set
+  - [ ] ext_offchain_local_storage_get
+  - [ ] ext_offchain_http_request_start
+  - [ ] ext_offchain_http_request_add_header
+  - [ ] ext_offchain_http_request_write_body
+  - [ ] ext_offchain_http_response_wait
+  - [ ] ext_offchain_http_response_headers
+  - [ ] ext_offchain_http_response_read_body
+- [ ] Trie
+  - [ ] ext_trie_blake2_256_root
+  - [ ] ext_trie_blake2_256_ordered_root
+- [] Miscallaneous
+  - [ ] ext_misc_chain_id
+  - [ ] ext_misc_print_num
+  - [ ] ext_misc_print_utf8
+  - [ ] ext_msic_print_hex
+  - [ ] ext_misc_runtime_version
+- [ ] Allocator
+  - [ ] ext_allocator_malloc
+  - [ ] ext_allocator_free
+- [ ] Log
+  - [ ] ext_logging_log
+
+*(Excluding Legacy APIs)*
+
 ## Component: State Transition
 
 ...
@@ -505,6 +579,9 @@ return *this;
 ```
 
 ### Component: Host API
+
+#### Storage
+
 
 
 ...
