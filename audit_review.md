@@ -641,6 +641,8 @@ return *this;
 
 ## Component: Host API
 
+Soramitsu was explicitly told that the child storages, offchain and sandbox APIs are low-priority and can be omitted.
+
 **NOTE**: None of the redesigned and versioned APIs are implemented. Kagome still fully relies on the "legacy" APIs.
 
 ### Storage
@@ -675,6 +677,9 @@ Namespace
 Class
 : `MemoryExtension`
 
+Conformance
+: **compliant** (no child storages, see section description)
+
 **Implemented functions:**
 
 - ext_malloc
@@ -690,6 +695,9 @@ Namespace
 
 Class
 : `CryptoExtension`
+
+Conformance
+: **compliant**
 
 **Implemented functions:**
 
@@ -712,6 +720,9 @@ Namespace
 Class
 : `IOExtension`
 
+Conformance
+: **compliant**
+
 **Implemented functions:**
 
 - ext_print_hex
@@ -728,6 +739,9 @@ Namespace
 
 Class
 : `MiscExtension`
+
+Conformance
+: **compliant**
 
 **Implemented functions:**
 
