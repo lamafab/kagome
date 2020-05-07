@@ -59,6 +59,8 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 
 ### Host API
 
+#### Versioned (redesigned)
+
 - [ ] Storage
   - [ ] ext_storage_set
   - [ ] ext_storage_get
@@ -117,7 +119,7 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 - [ ] Trie
   - [ ] ext_trie_blake2_256_root
   - [ ] ext_trie_blake2_256_ordered_root
-- [] Miscallaneous
+- [ ] Miscellaneous
   - [ ] ext_misc_chain_id
   - [ ] ext_misc_print_num
   - [ ] ext_misc_print_utf8
@@ -129,7 +131,9 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 - [ ] Log
   - [ ] ext_logging_log
 
-*(Excluding Legacy APIs)*
+#### Legacy APIs
+
+
 
 ## Component: State Transition
 
@@ -578,10 +582,95 @@ for (size_type i = 0u; i < item_count; ++i) {
 return *this;
 ```
 
-### Component: Host API
+## Component: Host API
 
-#### Storage
+**NOTE**: None of the redesigned and versioned APIs are implemented. Kagome still fully relies on the "legacy" APIs.
 
+### Storage
 
+Code path
+: `core/extensions/impl/storage_extension.cpp`
 
-...
+Namespace
+: `kagome::extensions`
+
+Class
+: `StorageExtension`
+
+**Implemented functions:**
+
+- ext_clear_prefix
+- ext_clear_storage
+- ext_exists_storage
+- ext_get_allocated_storage
+- ext_get_storage_into
+- ext_set_storage
+- ext_blake2_256_enumerated_trie_root
+- ext_storage_changes_root
+- ext_storage_root
+
+Code path (manual storage)
+: `core/extensions/impl/memory_extension.cpp`
+
+Namespace
+: `kagome::extensions`
+
+Class
+: `MemoryExtension`
+
+**Implemented functions:**
+
+- ext_malloc
+- ext_free
+
+### Crypto
+
+Code path
+: `core/extensions/impl/crypto_extension.cpp`
+
+Namespace
+: `kagome::extensions`
+
+Class
+: `CryptoExtension`
+
+**Implemented functions:**
+
+- ext_blake2_256
+- ext_keccak_256
+- ext_ed25519_verify
+- ext_sr25519_verify
+- ext_twox_64
+- ext_twox_128
+- ext_twox_256
+
+### Misc
+
+Code path (IO)
+: `core/extensions/impl/io_extension.cpp`
+
+Namespace
+: `kagome::extensions`
+
+Class
+: `IOExtension`
+
+**Implemented functions:**
+
+- ext_print_hex
+- ext_print_num
+- ext_print_utf8
+
+Code path (chain id)
+: `core/extensions/impl/misc_extension.cpp`
+
+Namespace
+: `kagome::extensions`
+
+Class
+: `MiscExtension`
+
+**Implemented functions:**
+
+- ext_chain_id
+
