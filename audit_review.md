@@ -62,78 +62,135 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 #### Versioned (redesigned)
 
 - [ ] Storage
-  - [ ] ext_storage_set
-  - [ ] ext_storage_get
-  - [ ] ext_storage_read
-  - [ ] ext_storage_clear
-  - [ ] ext_storage_exists
-  - [ ] ext_storage_clear_prefix
-  - [ ] ext_storage_root
-  - [ ] ext_storage_changes_root
-  - [ ] ext_storage_next_key
+  - [ ] ext_storage_set_version_1
+  - [ ] ext_storage_get_version_1
+  - [ ] ext_storage_read_version_1
+  - [ ] ext_storage_clear_version_1
+  - [ ] ext_storage_exists_version_1
+  - [ ] ext_storage_clear_prefix_version_1
+  - [ ] ext_storage_root_version_1
+  - [ ] ext_storage_changes_root_version_1
+  - [ ] ext_storage_next_key_version_1
 - [ ] Child Storage
-  - [ ] ext_storage_child_set
-  - [ ] ext_storage_child_get
-  - [ ] ext_storage_child_read
-  - [ ] ext_storage_child_clear
-  - [ ] ext_storage_child_storage_kill
-  - [ ] ext_storage_child_exists
-  - [ ] ext_storage_child_clear_prefix
-  - [ ] ext_storage_child_root
-  - [ ] ext_storage_child_next_key
+  - [ ] ext_storage_child_set_version_1
+  - [ ] ext_storage_child_get_version_1
+  - [ ] ext_storage_child_read_version_1
+  - [ ] ext_storage_child_clear_version_1
+  - [ ] ext_storage_child_storage_kill_version_1
+  - [ ] ext_storage_child_exists_version_1
+  - [ ] ext_storage_child_clear_prefix_version_1
+  - [ ] ext_storage_child_root_version_1
+  - [ ] ext_storage_child_next_key_version_1
 - [ ] Crypto
-  - [ ] ext_crypto_ed25519_public_keys
-  - [ ] ext_crypto_ed25519_generate
-  - [ ] ext_crypto_ed25519_sign
-  - [ ] ext_crypto_ed25519_verify
-  - [ ] ext_crypto_sr25519_public_keys
-  - [ ] ext_crypto_sr25519_generate
-  - [ ] ext_crypto_sr25519_sign
-  - [ ] ext_crypto_sr25519_verify
-  - [ ] ext_crypto_secp256k1_ecdsa_recover
-  - [ ] ext_crypto_secp256k1_ecdsa_recover_compressed
+  - [ ] ext_crypto_ed25519_public_keys_version_1
+  - [ ] ext_crypto_ed25519_generate_version_1
+  - [ ] ext_crypto_ed25519_sign_version_1
+  - [ ] ext_crypto_ed25519_verify_version_1
+  - [ ] ext_crypto_sr25519_public_keys_version_1
+  - [ ] ext_crypto_sr25519_generate_version_1
+  - [ ] ext_crypto_sr25519_sign_version_1
+  - [ ] ext_crypto_sr25519_verify_version_1
+  - [ ] ext_crypto_sr25519_verify_version_2
+  - [ ] ext_crypto_secp256k1_ecdsa_recover_version_1
+  - [ ] ext_crypto_secp256k1_ecdsa_recover_compressed_version_1
 - [ ] Hashing
-  - [ ] ext_hashing_keccak_256
-  - [ ] ext_hashing_sha2_256
-  - [ ] ext_hashing_blake2_128
-  - [ ] ext_hashing_blake2_256
-  - [ ] ext_hashing_twox_64
-  - [ ] ext_hashing_twox_128
-  - [ ] ext_hashing_twox_256
+  - [ ] ext_hashing_keccak_256_version_1
+  - [ ] ext_hashing_sha2_256_version_1
+  - [ ] ext_hashing_blake2_128_version_1
+  - [ ] ext_hashing_blake2_256_version_1
+  - [ ] ext_hashing_twox_64_version_1
+  - [ ] ext_hashing_twox_128_version_1
+  - [ ] ext_hashing_twox_256_version_1
 - [ ] Offchain
-  - [ ] ext_offchain_is_validator
-  - [ ] ext_offchain_submit_transaction
-  - [ ] ext_offchain_network_state
-  - [ ] ext_offchain_timestamp
-  - [ ] ext_offchain_sleep_until
-  - [ ] ext_offchain_random_seed
-  - [ ] ext_offchain_local_storage_set
-  - [ ] ext_offchain_local_storage_compare_and_set
-  - [ ] ext_offchain_local_storage_get
-  - [ ] ext_offchain_http_request_start
-  - [ ] ext_offchain_http_request_add_header
-  - [ ] ext_offchain_http_request_write_body
-  - [ ] ext_offchain_http_response_wait
-  - [ ] ext_offchain_http_response_headers
-  - [ ] ext_offchain_http_response_read_body
+  - [ ] ext_offchain_is_validator_version_1
+  - [ ] ext_offchain_submit_transaction_version_1
+  - [ ] ext_offchain_network_state_version_1
+  - [ ] ext_offchain_timestamp_version_1
+  - [ ] ext_offchain_sleep_until_version_1
+  - [ ] ext_offchain_random_seed_version_1
+  - [ ] ext_offchain_local_storage_set_version_1
+  - [ ] ext_offchain_local_storage_compare_and_set_version_1
+  - [ ] ext_offchain_local_storage_get_version_1
+  - [ ] ext_offchain_http_request_start_version_1
+  - [ ] ext_offchain_http_request_add_header_version_1
+  - [ ] ext_offchain_http_request_write_body_version_1
+  - [ ] ext_offchain_http_response_wait_version_1
+  - [ ] ext_offchain_http_response_headers_version_1
+  - [ ] ext_offchain_http_response_read_body_version_1
 - [ ] Trie
-  - [ ] ext_trie_blake2_256_root
-  - [ ] ext_trie_blake2_256_ordered_root
+  - [ ] ext_trie_blake2_256_root_version_1
+  - [ ] ext_trie_blake2_256_ordered_root_version_1
 - [ ] Miscellaneous
-  - [ ] ext_misc_chain_id
-  - [ ] ext_misc_print_num
-  - [ ] ext_misc_print_utf8
-  - [ ] ext_msic_print_hex
-  - [ ] ext_misc_runtime_version
+  - [ ] ext_misc_chain_id_version_1
+  - [ ] ext_misc_print_num_version_1
+  - [ ] ext_misc_print_utf8_version_1
+  - [ ] ext_msic_print_hex_version_1
+  - [ ] ext_misc_runtime_version_version_1
 - [ ] Allocator
-  - [ ] ext_allocator_malloc
-  - [ ] ext_allocator_free
+  - [ ] ext_allocator_malloc_version_1
+  - [ ] ext_allocator_free_version_1
 - [ ] Log
-  - [ ] ext_logging_log
+  - [ ] ext_logging_log_version_1
 
 #### Legacy APIs
 
-
+- [ ] Storage
+  - [x] ext_set_storage
+  - [x] ext_storage_root
+  - [x] ext_blake2_256_enumerated_trie_root
+  - [x] ext_clear_prefix
+  - [x] ext_clear_storage
+  - [x] ext_exists_storage
+  - [x] ext_get_allocated_storage
+  - [x] ext_get_storage_into
+  - [x] ext_storage_changes_root
+  - [ ] ext_set_child_storage
+  - [ ] ext_clear_child_storage
+  - [ ] ext_exists_child_storage
+  - [ ] ext_get_allocated_child_storage
+  - [ ] ext_get_child_storage_into
+  - [ ] ext_kill_child_storage
+- [ ] Memory
+  - [x] ext_malloc
+  - [x] ext_free
+- [ ] Crypto
+  - [x] ext_blake2_256
+  - [x] ext_keccak_256
+  - [x] ext_twox_64
+  - [x] ext_twox_128
+  - [x] ext_twox_256
+  - [x] ext_ed25519_verify
+  - [x] ext_sr25519_verify
+- [ ] Offchain
+  - [ ] ext_is_validator
+  - [ ] ext_submit_transaction
+  - [ ] ext_network_state
+  - [ ] ext_timestamp
+  - [ ] ext_sleep_until
+  - [ ] ext_random_seed
+  - [ ] ext_local_storage_set
+  - [ ] ext_local_storage_compare_and_set
+  - [ ] ext_local_storage_get
+  - [ ] ext_http_request_start
+  - [ ] ext_http_request_add_header
+  - [ ] ext_http_request_write_body
+  - [ ] ext_http_response_wait
+  - [ ] ext_http_response_headers
+  - [ ] ext_http_response_read_body
+- [ ] Sandbox
+  - [ ] ext_sandbox_instance_teardown
+  - [ ] ext_sandbox_instantiate
+  - [ ] ext_sandbox_invoke
+  - [ ] ext_sandbox_memory_get
+  - [ ] ext_sandbox_memory_new
+  - [ ] ext_sandbox_memory_set
+  - [ ] ext_sandbox_memory_teardown
+- [ ] Debugging
+  - [x] ext_print_hex
+  - [x] ext_print_utf8
+  - [x] ext_print_num
+- [ ] Misc
+  - [x] ext_chain_id
 
 ## Component: State Transition
 
@@ -644,9 +701,9 @@ Class
 - ext_twox_128
 - ext_twox_256
 
-### Misc
+### Debugging
 
-Code path (IO)
+Code path
 : `core/extensions/impl/io_extension.cpp`
 
 Namespace
@@ -661,7 +718,9 @@ Class
 - ext_print_num
 - ext_print_utf8
 
-Code path (chain id)
+### Misc
+
+Code path
 : `core/extensions/impl/misc_extension.cpp`
 
 Namespace
