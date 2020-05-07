@@ -194,7 +194,67 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 
 ## Component: State Transition
 
+### Interactions with runtime
+
 ...
+
+### Loading Runtime code
+
+
+
+### Code executor
+
+Code path
+: `core/runtime/binaryen/wasm_executor.cpp`
+
+Namespace
+: `kagome::runtime::binaryen`
+
+Conformance
+: `TODO`
+
+```cpp
+WasmExecutor::WasmExecutor()
+    : logger_{common::createLogger("Wasm executor")} {}
+
+    outcome::result<wasm::Literal> WasmExecutor::call(
+        wasm::ModuleInstance &module_instance,
+        wasm::Name method_name,
+        const wasm::LiteralList &args) {
+    try {
+        return module_instance.callExport(wasm::Name(method_name), args);
+    } catch (wasm::ExitException &e) {
+        return Error::EXECUTION_ERROR;
+    } catch (wasm::TrapException &e) {
+        return Error::EXECUTION_ERROR;
+    }
+}
+```
+
+### Transactions
+
+#### Transaction Queue
+
+Code path
+: `core/transaction_pool/transaction_pool.hpp`
+
+Namespace
+: `kagome::transaction_pool`
+
+Class
+: `TransactionPool`
+
+Conformance
+: `TODO`
+
+**Provided methods**
+
+- submitOne
+- submit
+- removeOne
+- remove
+- getReadyTransactions
+- getStatus
 
 ## Component: SCALE Codec
 
