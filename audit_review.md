@@ -200,9 +200,76 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 
 ### Loading Runtime code
 
+Code path (Runtime key defined)
+: `core/runtime/common/storage_wasm_provider.hpp`
 
+Namespace
+: `kagome::runtime`
 
-### Code executor
+Conformance
+: `Compliant`
+
+Load the value (Runtime) of the correct key. Kagome also checks that it loads the Runtime code corresponding to the state in which the entry has been called.
+
+```cpp
+// key for accessing runtime from storage(hex representation of ":code")
+inline const common::Buffer kRuntimeKey =
+    common::Buffer::fromHex("3a636f6465").value();
+
+class StorageWasmProvider : public WasmProvider {
+  public:
+  ~StorageWasmProvider() override = default;
+
+  explicit StorageWasmProvider(
+      std::shared_ptr<storage::trie::TrieDb> storage);
+
+  const common::Buffer &getStateCode() const override;
+
+  private:
+  std::shared_ptr<storage::trie::TrieDb> storage_;
+  mutable common::Buffer state_code_;
+  mutable common::Buffer last_state_root_;
+};
+```
+
+Code path (implementation)
+: `core/runtime/common/storage_wasm_provider.cpp`
+
+Namespace
+: `kagome::runtime`
+
+Conformance
+: `Compliant`
+
+```cpp
+StorageWasmProvider::StorageWasmProvider(
+    std::shared_ptr<storage::trie::TrieDb> storage)
+    : storage_{std::move(storage)} {
+  BOOST_ASSERT(storage_ != nullptr);
+
+  last_state_root_ = storage_->getRootHash();
+  auto state_code_res = storage_->get(kRuntimeKey);
+  BOOST_ASSERT_MSG(state_code_res.has_value(),
+                    "Runtime code does not exist in the storage");
+  state_code_ = state_code_res.value();
+}
+
+const common::Buffer &StorageWasmProvider::getStateCode() const {
+  auto current_state_root = storage_->getRootHash();
+  if (last_state_root_ == current_state_root) {
+    return state_code_;
+  }
+  last_state_root_ = current_state_root;
+
+  auto state_code_res = storage_->get(kRuntimeKey);
+  BOOST_ASSERT_MSG(state_code_res.has_value(),
+                    "Runtime code does not exist in the storage");
+  state_code_ = state_code_res.value();
+  return state_code_;
+}
+```
+
+### Wasm executor
 
 Code path
 : `core/runtime/binaryen/wasm_executor.cpp`
@@ -211,7 +278,9 @@ Namespace
 : `kagome::runtime::binaryen`
 
 Conformance
-: `TODO`
+: `Compliant`
+
+Kagome loads the Runtime code and supports access to its callable functions. This also includes passing on arguments.
 
 ```cpp
 WasmExecutor::WasmExecutor()
@@ -231,13 +300,37 @@ WasmExecutor::WasmExecutor()
 }
 ```
 
+### Extrinsics
+
+#### Regular extrinsics (existence)
+
+An Extrinsic is handled as just a stream of bytes.
+
+Code path
+: `core/primitives/extrinsic.hpp`
+
+Namespace
+: `kagome::primitives`
+
+Conformance
+: `Compliant`
+
+#### Inherents (existence)
+
+(The "State Transition" section of the Polkadot Host specification does not describe in detail what to do with Inherents, only that they exist. Block production is covered in a different review.)
+
+Code path
+: `core/primitives/inherent_data.hpp`
+
+Namespace
+: `kagome::primitives`
+
+Conformance
+: `Compliant`
+
 ### Transactions
 
 #### Behavior
-
-Kagome implements both a transaction pool and transaction queue. The behavior is based on the Polkadot Host specification, more precisely algorithm 3.2. It does not cover "propagate", however *.
-
-\* (Note: Soramitsu has informed me that propagate has been updated in the latest version.)
 
 Code path
 : `core/api/extrinsic/impl/extrinsic_api_impl.cpp`
@@ -250,6 +343,10 @@ Extension
 
 Conformance:
 : **Partly compliant (missing propagate)**
+
+Kagome implements both a transaction pool and transaction queue. The behavior is based on the Polkadot Host specification, more precisely algorithm 3.2. It does not cover "propagate", however *.
+
+\* (Note: Soramitsu has informed me that propagate has been updated in the latest version.)
 
 ```cpp
 auto state_before_validate = trie_db_->getRootHash();
@@ -298,7 +395,7 @@ Code path (implementation)
 : `core/runtime/binaryen/runtime_api/tagged_transaction_queue_impl.cpp`
 
 Conformance
-: `TODO`
+: `Compliant`
 
 ```cpp
 TaggedTransactionQueueImpl::TaggedTransactionQueueImpl(
