@@ -233,10 +233,89 @@ WasmExecutor::WasmExecutor()
 
 ### Transactions
 
-#### Transaction Queue
+#### Behavior
+
+Kagome implements both a transaction pool and transaction queue. The behavior is based on the Polkadot Host specification, more precisely algorithm 3.2. It does not cover "propagate", however *.
+
+\* (Note: Soramitsu has informed me that propagate has been updated in the latest version.)
 
 Code path
-: `core/transaction_pool/transaction_pool.hpp`
+: `core/api/extrinsic/impl/extrinsic_api_impl.cpp`
+
+Namespace
+: `kagome::api`
+
+Extension
+: `ExtrinsicApiImpl::ExtrinsicApiImpl`
+
+Conformance:
+: **Partly compliant (missing propagate)**
+
+```cpp
+auto state_before_validate = trie_db_->getRootHash();
+OUTCOME_TRY(res, api_->validate_transaction(extrinsic));
+OUTCOME_TRY(trie_db_->resetState(state_before_validate));
+
+return visit_in_place(
+    res,
+    [&](const primitives::TransactionValidityError &e) {
+      return visit_in_place(
+          e,
+          // return either invalid or unknown validity error
+          [](const auto &validity_error)
+              -> outcome::result<common::Hash256> {
+            return validity_error;
+          });
+    },
+    [&](const primitives::ValidTransaction &v)
+        -> outcome::result<common::Hash256> {
+      // compose Transaction object
+      common::Hash256 hash = hasher_->blake2b_256(extrinsic.data);
+      size_t length = extrinsic.data.size();
+
+      primitives::Transaction transaction{extrinsic,
+                                          length,
+                                          hash,
+                                          v.priority,
+                                          v.longevity,
+                                          v.requires,
+                                          v.provides,
+                                          v.propagate};
+
+      // send to pool
+      OUTCOME_TRY(pool_->submitOne(std::move(transaction)));
+
+      return hash;
+    });
+```
+
+#### Transaction Queue
+
+Code path (definition)
+: `core/runtime/tagged_transaction_queue.hpp`
+
+Code path (implementation)
+: `core/runtime/binaryen/runtime_api/tagged_transaction_queue_impl.cpp`
+
+Conformance
+: `TODO`
+
+```cpp
+TaggedTransactionQueueImpl::TaggedTransactionQueueImpl(
+    const std::shared_ptr<RuntimeManager> &runtime_manager)
+    : RuntimeApi(runtime_manager) {}
+
+outcome::result<primitives::TransactionValidity>
+TaggedTransactionQueueImpl::validate_transaction(
+    const primitives::Extrinsic &ext) {
+  return execute<TransactionValidity>(
+      "TaggedTransactionQueue_validate_transaction", ext);
+}
+```
+
+#### Transaction Pool
+Code path
+: `core/transaction_pool/impl/transaction_pool_impl.cpp`
 
 Namespace
 : `kagome::transaction_pool`
