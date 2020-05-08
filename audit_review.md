@@ -33,6 +33,23 @@ End date
 
 ## Conformance Summary
 
+### State Transition
+
+- [x] Loading/Interacting with the Runtime code
+  - [x] Runtime codes corresponds to the storage state
+- [] Wasm executor
+  - [x] Loads the Runtime based on the key from storage.
+  - [ ] Loads the Runtime code corresponding to the state in which the entry has been called.
+    - (Soramitsu: This part is being refactored and should be ready, soon.)
+- [x] Extrinsics
+  - [x] Signed extrinsics (existence)
+  - [x] Inherents (existence)
+- [ ] Transactions
+  - [ ] Behavior
+    - Partly implemented. Propagation missing (Soramitsu: was added in most recent version.)
+  - [x] Transaction Queue
+  - [x] Transaction Pool
+
 ### SCALE Codec
 
 The Kagome implementation fulfills the following requirements for SCALE encoding:
@@ -150,10 +167,10 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
   - [ ] ext_get_allocated_child_storage
   - [ ] ext_get_child_storage_into
   - [ ] ext_kill_child_storage
-- [ ] Memory
+- [x] Memory
   - [x] ext_malloc
   - [x] ext_free
-- [ ] Crypto
+- [x] Crypto
   - [x] ext_blake2_256
   - [x] ext_keccak_256
   - [x] ext_twox_64
@@ -185,20 +202,16 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
   - [ ] ext_sandbox_memory_new
   - [ ] ext_sandbox_memory_set
   - [ ] ext_sandbox_memory_teardown
-- [ ] Debugging
+- [x] Debugging
   - [x] ext_print_hex
   - [x] ext_print_utf8
   - [x] ext_print_num
-- [ ] Misc
+- [x] Misc
   - [x] ext_chain_id
 
 ## Component: State Transition
 
-### Interactions with runtime
-
-...
-
-### Loading Runtime code
+### Loading/Interacting with the Runtime code
 
 Code path (Runtime key defined)
 : `core/runtime/common/storage_wasm_provider.hpp`
@@ -302,7 +315,7 @@ WasmExecutor::WasmExecutor()
 
 ### Extrinsics
 
-#### Regular extrinsics (existence)
+#### Signed extrinsics (existence)
 
 An Extrinsic is handled as just a stream of bytes.
 
