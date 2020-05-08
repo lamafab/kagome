@@ -37,7 +37,7 @@ End date
 
 - [x] Loading/Interacting with the Runtime code
   - [x] Runtime codes corresponds to the storage state
-- [] Wasm executor
+- [ ] Wasm executor
   - [x] Loads the Runtime based on the key from storage.
   - [ ] Loads the Runtime code corresponding to the state in which the entry has been called.
     - (Soramitsu: This part is being refactored and should be ready, soon.)
@@ -222,7 +222,9 @@ Namespace
 Conformance
 : `Compliant`
 
-Load the value (Runtime) of the correct key. Kagome also checks that it loads the Runtime code corresponding to the state in which the entry has been called.
+Load the value (Runtime) of the correct key. Kagome still has to check that it loads the Runtime code corresponding to the state in which the entry has been called.
+
+(Soramitsu: This part of the code is being refactored and should be ready, soon.)
 
 ```cpp
 // key for accessing runtime from storage(hex representation of ":code")
@@ -401,6 +403,8 @@ return visit_in_place(
 
 #### Transaction Queue
 
+Used in the "Behavior" section described above.
+
 Code path (definition)
 : `core/runtime/tagged_transaction_queue.hpp`
 
@@ -424,6 +428,9 @@ TaggedTransactionQueueImpl::validate_transaction(
 ```
 
 #### Transaction Pool
+
+Used in the "Behavior" section described above.
+
 Code path
 : `core/transaction_pool/impl/transaction_pool_impl.cpp`
 
@@ -434,7 +441,7 @@ Class
 : `TransactionPool`
 
 Conformance
-: `TODO`
+: `Compliant`
 
 **Provided methods**
 
