@@ -70,9 +70,10 @@ The Kagome implementation fulfills the following requirements for SCALE encoding
 - [x] Encoding/Decoding special case of optional boolean type ("Option")
 - [ ] Encoding/Decoding of success/failure indicators ("Result")
 - [x] Encoding/Decoding of Vectors (lists, series, arrays)
-- [ ] Encoding/Decoding of tuples
+- [x] Encoding/Decoding of tuples
+  - Only supports two values? (TODO)
 - [ ] Encoding/Decoding of data structures
-- [ ] Encoding/Decoding of enumerations
+- [x] Encoding/Decoding of enumerations
 
 ### Host API
 
@@ -220,7 +221,7 @@ Namespace
 : `kagome::runtime`
 
 Conformance
-: `Compliant`
+: **compliant**
 
 Load the value (Runtime) of the correct key. Kagome still has to check that it loads the Runtime code corresponding to the state in which the entry has been called.
 
@@ -254,7 +255,7 @@ Namespace
 : `kagome::runtime`
 
 Conformance
-: `Compliant`
+: **compliant**
 
 ```cpp
 StorageWasmProvider::StorageWasmProvider(
@@ -293,7 +294,7 @@ Namespace
 : `kagome::runtime::binaryen`
 
 Conformance
-: `Compliant`
+: **compliant**
 
 Kagome loads the Runtime code and supports access to its callable functions. This also includes passing on arguments.
 
@@ -328,7 +329,7 @@ Namespace
 : `kagome::primitives`
 
 Conformance
-: `Compliant`
+: **compliant**
 
 #### Inherents (existence)
 
@@ -341,7 +342,7 @@ Namespace
 : `kagome::primitives`
 
 Conformance
-: `Compliant`
+: **compliant**
 
 ### Transactions
 
@@ -412,7 +413,7 @@ Code path (implementation)
 : `core/runtime/binaryen/runtime_api/tagged_transaction_queue_impl.cpp`
 
 Conformance
-: `Compliant`
+: **compliant**
 
 ```cpp
 TaggedTransactionQueueImpl::TaggedTransactionQueueImpl(
@@ -441,7 +442,7 @@ Class
 : `TransactionPool`
 
 Conformance
-: `Compliant`
+: **compliant**
 
 **Provided methods**
 
@@ -927,6 +928,94 @@ for (size_type i = 0u; i < item_count; ++i) {
     v.push_back(std::move(t));
 }
 return *this;
+```
+
+#### Results encoding/decoding
+
+TODO: Does not seem to be implemented.
+
+#### Tuple encoding
+
+Code path
+: `core/scale/scale_encoder_stream.hpp`
+
+Function
+: `ScaleEncoderStream &operator<<(const std::pair<F, S> &p)`
+
+Conformance:
+: **TODO**
+
+```cpp
+template <class F, class S>
+ScaleEncoderStream &operator<<(const std::pair<F, S> &p) {
+  return *this << p.first << p.second;
+}
+```
+
+TODO: Does this only support two values?
+
+#### Tuple decoding
+
+Code path
+: `core/scale/scale_decoder_stream.hpp`
+
+Function
+: `core/scale/scale_decoder_stream.hpp`
+
+Conformance
+: **TODO**
+
+```cpp
+template <class F, class S>
+ScaleDecoderStream &operator>>(std::pair<F, S> &p) {
+  return *this >> p.first >> p.second;
+}
+```
+
+TODO: Does this only support two values?
+
+#### Data structures encoding/decoding
+
+TODO: Not implemented?
+
+#### Enumerations encoding
+
+Code path
+: `core/scale/detail/variant.hpp`
+
+Function
+: `void encodeVariant(const boost::variant<T...> &v, Stream &s)`
+
+Conformance
+: **compliant**
+
+```cpp
+auto &&encoder = impl::VariantEncoder(v, s);
+impl::for_each_apply<decltype(encoder), T...>(encoder);
+```
+
+#### Enumerations decoding
+
+Code path
+: `core/scale/detail/variant.hpp`
+
+Function
+: `Stream &decodeVariant(Stream &stream, boost::variant<T...> &result)`
+
+```cpp
+// first byte means type index
+uint8_t type_index = 0u;
+stream >> type_index;  // decode type index
+static constexpr uint8_t types_count = sizeof...(T);
+// ensure that index is in [0, types_count)
+if (type_index >= types_count) {
+  common::raise(DecodeError::WRONG_TYPE_INDEX);
+}
+
+auto &&decoder = impl::VariantDecoder(type_index, result, stream);
+impl::for_each_apply<decltype(decoder), T...>(decoder);
+
+return stream;
 ```
 
 ## Component: Host API
