@@ -27,11 +27,15 @@ End date
 
 ## Components
 
+Components that this review covers.
+
 - State Transition
 - SCALE Codec
 - Host API
 
 ## Conformance Summary
+
+A summary of the sub-components that are implemented according to the spec (as the code implies, not directly tested).
 
 ### State Transition
 
@@ -1125,4 +1129,3 @@ Conformance
 **Implemented functions:**
 
 - ext_chain_id
-
