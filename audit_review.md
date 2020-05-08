@@ -760,7 +760,41 @@ TODO: Does the followed value get encoded accordingly?
 
 #### Optional value decoding
 
-TODO: 
+Code path
+: `core/scale/scale_decoder_stream.hpp`
+
+Function
+: `ScaleDecoderStream &operator>>(boost::optional<T> &v)`
+
+Conformance
+: **compliant**
+
+1. Works for special case of optional-boolean.
+2. Check if it contains a value.
+    - If it has, decode that value.
+
+```cpp
+// optional bool is special case of optional values
+// it is encoded as one byte instead of two
+// as described in specification
+if constexpr (std::is_same<T, bool>::value) {
+  v = decodeOptionalBool();
+  return *this;
+}
+// detect if optional has value
+bool has_value = false;
+*this >> has_value;
+if (!has_value) {
+  v = boost::none;
+  return *this;
+}
+// decode value
+T t{};
+*this >> t;
+v = t;
+
+return *this;
+```
 
 ***
 
